@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include <X11/Xlib.h>
 #include "spawn_window.h"
 #include "square_state.h"
@@ -144,7 +145,7 @@ static void printClientMessage(Display *disp, XClientMessageEvent *message)
 	case 32:
 		printf("32-bit longs: ");
 		for (int i = 0; i < 5; ++i)
-			printf("%d ", message->data.l[i]);
+			printf("%d ", (int32_t)message->data.l[i]);
 		break;
 	}
 	printf("\n");
@@ -622,7 +623,7 @@ void spawnWindow(pid_t procId)
 					// exchange is ongoing, cancel it and reset state
 					if (xdndState.xdndExchangeStarted && targetWindow != xdndState.otherWindow) {
 						// Send XdndLeave message
-						printf("%s: sending XdndLeave message to target window 0x%x\n",
+						printf("%s: sending XdndLeave message to target window 0x%lx\n",
 							procStr, xdndState.otherWindow);
 						sendXdndLeave(disp, wind, xdndState.otherWindow);
 
@@ -641,7 +642,7 @@ void spawnWindow(pid_t procId)
 						XSetSelectionOwner(disp, XdndSelection, wind, event.xmotion.time);
 
 						// Send XdndEnter message
-						printf("%s: sending XdndEnter to target window 0x%x\n",
+						printf("%s: sending XdndEnter to target window 0x%lx\n",
 							procStr, targetWindow);
 						sendXdndEnter(disp, supportsXdnd, wind, targetWindow);
 						xdndState.xdndExchangeStarted = true;
@@ -651,7 +652,7 @@ void spawnWindow(pid_t procId)
 
 					if (!xdndState.xdndStatusReceived) {
 						// Send XdndPosition message
-						printf("%s: sending XdndPosition to target window 0x%x\n",
+						printf("%s: sending XdndPosition to target window 0x%lx\n",
 							procStr, targetWindow);
 						sendXdndPosition(disp, wind, targetWindow, event.xmotion.time,
 							event.xmotion.x_root, event.xmotion.y_root);
